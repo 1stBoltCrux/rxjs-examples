@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "jquery": "^3.4.1",
     "rxjs": "^6.5.2"
   }
 }
