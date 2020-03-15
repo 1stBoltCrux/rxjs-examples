@@ -2,14 +2,15 @@
 // basically modelling things in a reactive way gives us access to all of the benefits of the rxjs library and operators - makes code more declarative and succinct
 // start thinking in a push model instead of a push model - we're no longer looping through an array we're essentially saying 'hey object, if you have a new value give it to me'
 
-import { of, interval, fromEvent, Observable } from "rxjs";
+import { of, interval, fromEvent, Observable, timer, from, defer, range } from "rxjs";
 import {
   mergeMap,
   flatMap,
   map,
   distinctUntilChanged,
   debounceTime,
-  switchMap
+  switchMap,
+  take,
 } from "rxjs/operators";
 import $ from "jquery";
 
@@ -60,13 +61,15 @@ function getItems(title) {
 
 //--------------------------------------------------------------------
 
-//observables are lazy, they do not run the generator function until they are subscribed through
+//observables are lazy, they do not run the generator function until they are subscribed to
 
 //creating an interval observable and custom subscriber function
 
 //what is an operator in rxjs? it's simply an observable that wraps another observable
 
 //an observable is nothing more than a generator function that is invoked every time it is subscribed to
+
+//a subscription is nothing more than a next(), error(), and complete() method that gets passed into the subscribe
 
 function createInterval$(time) {
   return new Observable(observer => {
@@ -113,8 +116,56 @@ function take$(sourceObservable$, amount) {
   })
 }
 
-const everySecond$ = createInterval$(1000);
-const firstFiveSeconds$ = take$(everySecond$, 5)
-const subscription = firstFiveSeconds$.subscribe(createSubscriber('one'))
+// const everySecond$ = createInterval$(1000);
+// const firstFiveSeconds$ = take$(everySecond$, 5)
+// const subscription = firstFiveSeconds$.subscribe(createSubscriber('one'))
 
 //------------------------------------------------------------------------------
+
+//interval observable that emits every half a second, five times
+
+const interval$ = interval(500).pipe(
+  take(5)
+)
+
+// interval$.subscribe(createSubscriber('interval'))
+
+//waits 3 seconds, then begins emitting values every second (second param is a period value) - the value being emitted is the index of the timer, or the emission count, so 0, 1, 2, etc....
+
+const timer$ = timer(3000, 1000)
+
+// timer$.subscribe(createSubscriber('timer'))
+
+
+//wraps a value into an observable - emits arguments in order and then completes
+
+const of$ = of('hello world', 'thingy', 'banana')
+
+// of$.subscribe(createSubscriber('of'))
+
+//takes an array-like value and flattens it - from always expects an iterable - it will iterate over and pass each item as it's next value - this would emit 'hello' and then next it would emit 'world' - if you were to pass a string every character would be emitted one at a time as the next value - great way to take an existing array and perform actions on each item
+
+const from$ = from(['hello', 'world'])
+
+// from$.subscribe(createSubscriber('from'))
+
+//defer creates a generator function and invokes the function every time it is subscribed to
+
+let sideEffect = 0;
+const defer$ = defer(() => {
+  sideEffect++;
+  return of(sideEffect);
+})
+
+// defer$.subscribe(createSubscriber('1'))
+// defer$.subscribe(createSubscriber('2'))
+// defer$.subscribe(createSubscriber('3'))
+
+//emits values one by one through the selected range - doesn't work like python's range method - the first argument is the starting point and the second argument is how far to count up from that first argument - also it's not inclusive so you get 10 - 39 as values
+
+const range$ = range(10, 30)
+
+// range$.subscribe(createSubscriber('range'))
+
+//------------------------------------------------------------------------------------
+
