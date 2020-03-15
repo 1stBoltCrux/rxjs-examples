@@ -26,6 +26,10 @@ const result = letters.pipe(
 
 // result.subscribe( x => console.log(x))
 
+//--------------------------------------------------------------------
+
+//debounce, switchmap, distinctUntilChanged, - doubounces search in an input bar
+
 const title = $("#input");
 const results = $("#results");
 
@@ -49,3 +53,6 @@ function getItems(title) {
     }, 500);
   });
 }
+
+//--------------------------------------------------------------------
+
