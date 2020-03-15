@@ -2,7 +2,7 @@
 // basically modelling things in a reactive way gives us access to all of the benefits of the rxjs library and operators - makes code more declarative and succinct
 // start thinking in a push model instead of a push model - we're no longer looping through an array we're essentially saying 'hey object, if you have a new value give it to me'
 
-import { of, interval, fromEvent, Observable, timer, from, defer, range } from "rxjs";
+import { of, interval, fromEvent, Observable, timer, from, defer, range, Subject, AsyncSubject, BehaviorSubject } from "rxjs";
 import {
   mergeMap,
   flatMap,
@@ -11,6 +11,7 @@ import {
   debounceTime,
   switchMap,
   take,
+  tap
 } from "rxjs/operators";
 import $ from "jquery";
 
@@ -37,6 +38,8 @@ const result = letters.pipe(
 
 const title = $("#input");
 const results = $("#results");
+
+//fromEvent is helpful regarding event listeners because it doesn't actually add the listener until it is subscribed to (is needed) and when it unsubscribes that handler is removed from the dom
 
 fromEvent(title, "keyup")
   .pipe(
@@ -169,3 +172,28 @@ const range$ = range(10, 30)
 
 //------------------------------------------------------------------------------------
 
+// Subjects - another reactive primitive - they are an object that is both and observable and observer - often used to bridge non-reactive code with reactive code
+// warning - generally should be used only in the context of bridging reactive and non-reactive code. Often you can get away without using them.
+
+//can be used to emit values and be subscribed to at the same time
+
+//this setup allows us to subscribe to the observable only once, but pass those subscriptions on to a subject that can be subscribed to many times - the subject acting as a proxy for the observable
+
+const simple$ = new Subject();
+
+// simple$.subscribe(createSubscriber('simple'))
+
+// simple$.next('foo')
+// simple$.next('bar')
+// simple$.complete()
+
+const intervalTwo$ = interval(1000).pipe(
+  tap(thing => console.log('log me')),
+  take(5)
+)
+const intervalSubject$ = new Subject()
+intervalTwo$.subscribe(intervalSubject$)
+
+intervalSubject$.subscribe(createSubscriber('sub1'))
+intervalSubject$.subscribe(createSubscriber('sub2'))
+intervalSubject$.subscribe(createSubscriber('sub3'))
