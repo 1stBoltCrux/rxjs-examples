@@ -2,7 +2,7 @@
 // basically modelling things in a reactive way gives us access to all of the benefits of the rxjs library and operators - makes code more declarative and succinct
 // start thinking in a push model instead of a push model - we're no longer looping through an array we're essentially saying 'hey object, if you have a new value give it to me'
 
-import { of, interval, fromEvent, Observable, timer, from, defer, range, Subject, AsyncSubject, BehaviorSubject } from "rxjs";
+import { of, interval, fromEvent, Observable, timer, from, defer, range, Subject, AsyncSubject, BehaviorSubject, ReplaySubject } from "rxjs";
 import {
   mergeMap,
   flatMap,
@@ -11,7 +11,7 @@ import {
   debounceTime,
   switchMap,
   take,
-  tap
+  tap,
 } from "rxjs/operators";
 import $ from "jquery";
 
@@ -192,8 +192,66 @@ const intervalTwo$ = interval(1000).pipe(
   take(5)
 )
 const intervalSubject$ = new Subject()
-intervalTwo$.subscribe(intervalSubject$)
+// intervalTwo$.subscribe(intervalSubject$)
 
-intervalSubject$.subscribe(createSubscriber('sub1'))
-intervalSubject$.subscribe(createSubscriber('sub2'))
-intervalSubject$.subscribe(createSubscriber('sub3'))
+// intervalSubject$.subscribe(createSubscriber('sub1'))
+// intervalSubject$.subscribe(createSubscriber('sub2'))
+// intervalSubject$.subscribe(createSubscriber('sub3'))
+
+//this setup illustrates how a late subscription does not recieve the latest emitted value
+
+//with a normal subject we'll log 'false, true, true'
+// with a behavior subject we will log 'false, false, false, true, true'
+
+// const currentUser$ = new Subject()
+const currentUser$ = new BehaviorSubject({isLoggedIn: false})
+const isLoggedin$ = currentUser$.pipe(
+  map(u => u.isLoggedIn))
+
+  // isLoggedin$.subscribe(createSubscriber('isLoggedIn'))
+
+  currentUser$.next({isLoggedIn: false})
+
+  // setTimeout(() => {
+  //   currentUser$.next({isLoggedIn: true})
+  // }, 2000)
+
+  //this late subsciber logs 'true' -  even though the subscription takes place before the true value is emitted from the subject, the subscriber does not pick up the first emitted value
+
+  // setTimeout(() => {
+  //   isLoggedin$.subscribe(createSubscriber('delayed'))
+  // }, 1000)
+
+  //-----------------------------------------------------------------------------
+
+//replay subject - 
+
+const replay$ = new ReplaySubject(3)
+replay$.next(1)
+replay$.next(2)
+replay$.next(3)
+replay$.next(4)
+replay$.next(5)
+replay$.next(6)
+
+//this subscribe will log '4,5,6'  - the replay subject hangs on to it's last three values and emits those one when subscribed to
+
+// replay$.subscribe(createSubscriber('replay'))
+
+//-------------------------------------------------------------------------------
+
+//async subject - always emits it's latest value upon complete - doesn't emit anything until it completes, if subscribed to after completing it still emits it's final value
+
+const apiCall$ = new AsyncSubject();
+
+apiCall$.next(1)
+
+// apiCall$.subscribe(createSubscriber('one'))
+
+apiCall$.next(2)
+apiCall$.complete()
+
+// setTimeout(() => {
+//   apiCall$.subscribe(createSubscriber('two'))
+// }, 2000)
+
