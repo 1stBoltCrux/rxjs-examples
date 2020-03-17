@@ -31,7 +31,14 @@ import {
   merge,
   concat,
   reduce,
-  scan
+  scan,
+  buffer,
+  bufferCount,
+  bufferTime,
+  toArray,
+  filter,
+  skipWhile,
+  takeWhile
 } from "rxjs/operators";
 import $ from "jquery";
 
@@ -410,13 +417,56 @@ function query(value) {
 
 //scan will emit a value on every iteration until it completes
 
-from(range(1, 10)).pipe(
-  scan((acc, value) => acc + value)
-).subscribe(createSubscriber('reduce'))
+// from(range(1, 10)).pipe(
+//   scan((acc, value) => acc + value)
+// ).subscribe(createSubscriber('reduce'))
 
 //this scan setup will return a current and previous value as [curr, prev] every iteration
 
-from(range(1, 10)).pipe(
-  scan(([last], current) => [current, last], [])
-).subscribe(createSubscriber('reduce'))
+// from(range(1, 10)).pipe(
+//   scan(([last], current) => [current, last], [])
+// ).subscribe(createSubscriber('reduce'))
+
+//bufferCount - 
+
+//returns observable values in chunk arrays -  in this case arrays of 10 items - 
+
+// from(range(0, 100)).pipe(
+//   bufferCount(10)
+// ).subscribe(createSubscriber('bufferCount'))
+
+// interval(500).pipe(
+//   bufferTime(2000)
+// ).subscribe(createSubscriber("bufferTime"))
+
+//when passing an observable into buffer it's just going to wait until that observable produces a result before passing any values - so after three seconds, when next is called one the subject, the buffer will pass along it's 6 values
+
+// const stopSubject$ = new Subject();
+
+// interval(500).pipe(
+//   buffer(stopSubject$)
+// ).subscribe(createSubscriber('buffer'))
+
+// setTimeout(() => {
+//   stopSubject$.next()
+// }, 3000)
+
+// toArray ------
+
+//creates an array from all values emitted by the observable and emits once that observable completes
+
+// from(range(1, 10)).pipe(
+//   toArray()
+// ).subscribe(createSubscriber('toArray'))
+
+//first, last, single --- all sort of self explanatory and take and skip are simple as well
+
+// skipWhile and takeWhile ---
+
+//allow us to assign predicates to our skip and take operators - this would produce values 5, 6, 7, 8, 9
+
+interval(500).pipe(
+  skipWhile(i => i < 4),
+  takeWhile(i => i < 10)
+).subscribe(createSubscriber('skipWhile/takeWhile'))
 
