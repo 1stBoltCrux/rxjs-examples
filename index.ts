@@ -15,7 +15,7 @@ import {
   AsyncSubject,
   BehaviorSubject,
   ReplaySubject,
-  ConnectableObservable
+  ConnectableObservable,
 } from "rxjs";
 import {
   mergeMap,
@@ -38,7 +38,13 @@ import {
   toArray,
   filter,
   skipWhile,
-  takeWhile
+  takeWhile,
+  takeUntil,
+  skipUntil,
+  zip,
+  withLatestFrom,
+  combineLatest,
+  retry
 } from "rxjs/operators";
 import $ from "jquery";
 
@@ -465,8 +471,66 @@ function query(value) {
 
 //allow us to assign predicates to our skip and take operators - this would produce values 5, 6, 7, 8, 9
 
-interval(500).pipe(
-  skipWhile(i => i < 4),
-  takeWhile(i => i < 10)
-).subscribe(createSubscriber('skipWhile/takeWhile'))
+// interval(500).pipe(
+//   skipWhile(i => i < 4),
+//   takeWhile(i => i < 10)
+// ).subscribe(createSubscriber('skipWhile/takeWhile'))
+
+//takeUntil and takeWhile - this would skip until the observable passed to skipUntil completed, then take until the observable passed to takeUntil completed
+
+// interval(500).pipe(
+//   skipUntil(timer(2000)),
+//   takeUntil(timer(4000))
+// ).subscribe(createSubscriber('skipWhile/takeWhile'))
+
+//zip ------
+
+//zips up two observables together - If the latest parameter is a function, this function is used to compute the created value from the input values. Otherwise, an array of the input values is returned.
+
+// from(range(1, 10)).pipe(
+//   zip(interval(500), (left, right) => `item: ${left} at ${right * 500}`)
+// ).subscribe(createSubscriber('zip'))
+
+//withLatestFrom ----- 
+
+//combines the output of the outer observable and the latest output of the source observable - you will log a pair of values whenever the outer observable emits, so every second in this case
+
+//withLatestFrom can, like zip, also take in a 'selector function' to determine what to do with the two values
+
+// interval(1000).pipe(
+//   withLatestFrom(interval(2000))
+// ).subscribe(createSubscriber('withLatestFrom'))
+
+//combineLatest ------- 
+
+//emits a new value when there's a value emitted from any of the observables it is combining
+
+// const currentUserTwo$ = new BehaviorSubject({isLoggedIn: false})
+
+// interval(1000).pipe(
+//   combineLatest(currentUserTwo$),
+//   filter(([i, user]) => {
+//     return user.isLoggedIn
+//   })
+// ).subscribe(createSubscriber('combineLatest'))
+
+// setTimeout(() => {
+//   currentUserTwo$.next({isLoggedIn: true})
+// }, 2500)
+
+//error handling operators, catch and retry ------
+
+//retry will retry a upon error, and you can pass a numerical value to it for the amount of times you'd like to it retry before completing and unsubscribing from the observable chain
+
+//catch catches errors and allows us to respond to them
+
+//just throwing an error will complete and unsubscribe
+
+
+
+
+
+
+
+
 
