@@ -1,4 +1,73 @@
-<input id="input" type="text">
-<ul id="results">
+<html>
 
-</ul>
+<head>
+	<title>Notes</title>
+  <style>
+    .dragable {
+      transition: background 250ms;
+      background: #aaa;
+      width: 30px;
+      height: 30px;
+      position: absolute;
+      cursor: move;
+      border: 5px solid #444;
+      top: 0;
+      left: 0;
+    }
+
+    .dragable.dragging {
+      background: #555;
+      point-events: none;
+    }
+
+    .drop-area {
+      transition: background 250ms;
+      padding: 10px;
+      background: #007ACC;
+      margin: 10px 0;
+      color: #fff
+    }
+
+    .drop-area.dropped {
+      background: #FEE200;
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+	<div id="search-example">
+    <form action="">
+		<input id="input" type="text">
+		<ul id="results">
+		</ul>
+    </form>
+	</div>
+
+  <div class="dragable" id="drag"></div>
+    <ul>
+      <li class="drop-area">
+        Drop Area 1
+      </li>
+      <li class="drop-area">
+        Drop Area 2
+      </li>
+      <li class="drop-area">
+        Drop Area 3
+      </li>
+      <li class="drop-area">
+        Drop Area 4
+      </li>
+      <li class="drop-area">
+        Drop Area 5
+      </li>
+      <li class="drop-area">
+        Drop Area 6
+      </li>
+    </ul>
+
+
+
+</body>
+
+</html>

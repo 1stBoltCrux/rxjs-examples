@@ -15,7 +15,7 @@ import {
   AsyncSubject,
   BehaviorSubject,
   ReplaySubject,
-  ConnectableObservable,
+  ConnectableObservable
 } from "rxjs";
 import {
   mergeMap,
@@ -44,7 +44,8 @@ import {
   zip,
   withLatestFrom,
   combineLatest,
-  retry
+  retry,
+  last
 } from "rxjs/operators";
 import $ from "jquery";
 
@@ -394,9 +395,9 @@ setTimeout(() => {
 function query(value) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve(`THIS IS THE VALUE - ${value}`)
-    }, 3000)
-  })
+      resolve(`THIS IS THE VALUE - ${value}`);
+    }, 3000);
+  });
 }
 
 //switchMap is just like mergeMap but it cancels previous values if new values come through- only emits latest value - how click event debouncing works/async call would be cancelled value would be discarded if another was initiated
@@ -433,9 +434,9 @@ function query(value) {
 //   scan(([last], current) => [current, last], [])
 // ).subscribe(createSubscriber('reduce'))
 
-//bufferCount - 
+//bufferCount -
 
-//returns observable values in chunk arrays -  in this case arrays of 10 items - 
+//returns observable values in chunk arrays -  in this case arrays of 10 items -
 
 // from(range(0, 100)).pipe(
 //   bufferCount(10)
@@ -491,7 +492,7 @@ function query(value) {
 //   zip(interval(500), (left, right) => `item: ${left} at ${right * 500}`)
 // ).subscribe(createSubscriber('zip'))
 
-//withLatestFrom ----- 
+//withLatestFrom -----
 
 //combines the output of the outer observable and the latest output of the source observable - you will log a pair of values whenever the outer observable emits, so every second in this case
 
@@ -501,7 +502,7 @@ function query(value) {
 //   withLatestFrom(interval(2000))
 // ).subscribe(createSubscriber('withLatestFrom'))
 
-//combineLatest ------- 
+//combineLatest -------
 
 //emits a new value when there's a value emitted from any of the observables it is combining
 
@@ -526,11 +527,40 @@ function query(value) {
 
 //just throwing an error will complete and unsubscribe
 
+//-------drag n' drop-------------------------
 
+const drag = $("#drag");
+const document = $("document");
+const dropAreas = $(".drop-area");
 
+const beginDrag$ = fromEvent(drag, "mousedown");
+const endDrag$ = fromEvent(document, "mouseup");
+const mouseMove$ = fromEvent(document, "mousemove");
 
+const drops$ = beginDrag$.pipe(
+  tap(e => {
+    e.preventDefault();
+    drag.addClass("dragging");
+  }),
+  mergeMap(startEvent => {
+    return mouseMove$.pipe(
+      takeUntil(endDrag$),
+      tap(moveEvent => moveDrag(startEvent, moveEvent)),
+      last()
+    )
+  }),
+  tap(() => {
+    drag.removeClass("dragging").animate({ top: 0, left: 0 }, 250);
+  }));
 
+  drops$.subscribe(dropAreas => {
+    console.log(dropAreas)
+  })
 
-
-
-
+  function moveDrag(startEvent, moveEvent) {
+    console.log(moveEvent)
+    drag.css({
+      left: moveEvent.clientX - startEvent.offsetX,
+      top: moveEvent.clientY - startEvent.offsetY
+    })
+  }
