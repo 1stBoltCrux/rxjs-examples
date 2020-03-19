@@ -529,18 +529,18 @@ function query(value) {
 
 //-------drag n' drop-------------------------
 
-const drag = $("#drag");
-const document = $("document");
-const dropAreas = $(".drop-area");
+const $drag = $("#drag");
+const $document = $(document);
+const $dropAreas = $(".drop-area");
 
-const beginDrag$ = fromEvent(drag, "mousedown");
-const endDrag$ = fromEvent(document, "mouseup");
-const mouseMove$ = fromEvent(document, "mousemove");
+const beginDrag$ = fromEvent($drag, "mousedown");
+const endDrag$ = fromEvent($document, "mouseup");
+const mouseMove$ = fromEvent($document, "mousemove");
 
 const drops$ = beginDrag$.pipe(
   tap(e => {
-    e.preventDefault();
-    drag.addClass("dragging");
+    // e.preventDefault();
+    $drag.addClass('dragging')
   }),
   mergeMap(startEvent => {
     return mouseMove$.pipe(
@@ -549,17 +549,19 @@ const drops$ = beginDrag$.pipe(
       last()
     )
   }),
-  tap(() => {
-    drag.removeClass("dragging").animate({ top: 0, left: 0 }, 250);
-  }));
+    tap(() => {
+      console.log('penis')
+      $drag.removeClass('dragging').animate({top: 0, left: 0}, 250)
+    })
+)
 
   drops$.subscribe(dropAreas => {
-    console.log(dropAreas)
+    console.log($dropAreas)
   })
 
   function moveDrag(startEvent, moveEvent) {
     console.log(moveEvent)
-    drag.css({
+    $drag.css({
       left: moveEvent.clientX - startEvent.offsetX,
       top: moveEvent.clientY - startEvent.offsetY
     })
