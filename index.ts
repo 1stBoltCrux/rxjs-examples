@@ -550,7 +550,6 @@ const drops$ = beginDrag$.pipe(
     )
   }),
     tap(() => {
-      console.log('penis')
       $drag.removeClass('dragging').animate({top: 0, left: 0}, 250)
     })
 )
